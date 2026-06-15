@@ -1,0 +1,16 @@
+config {
+  type: "table",
+  schema: "gold",
+  database: "data-engineering-496314",
+  name: "avg_fare_by_trip_category",
+  tags: ['gold']
+}
+
+SELECT
+  trip_category,
+  AVG(fare_amount) AS avg_fare,
+  AVG(fare_per_mile) AS avg_fare_per_mile
+FROM
+  ${ref('silver', 'yellow_taxi_trips')}
+GROUP BY
+  trip_category
