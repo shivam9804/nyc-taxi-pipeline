@@ -1,7 +1,7 @@
 Overview
 ========
 
-Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+Welcome to nyc-taxi-pipeline! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
 
 Project Contents
 ================
@@ -9,9 +9,9 @@ Project Contents
 Your Astro project contains the following files and folders:
 
 - dags: This folder contains the Python files for your Airflow DAGs. By default, this directory includes one example DAG:
-    - `example_astronauts`: This DAG shows a simple ETL pipeline example that queries the list of astronauts currently in space from the Open Notify API and prints a statement for each astronaut. The DAG uses the TaskFlow API to define tasks in Python, and dynamic task mapping to dynamically print a statement for each astronaut. For more on how this DAG works, see our [Getting started tutorial](https://www.astronomer.io/docs/learn/get-started-with-airflow).
+    - `nyc_taxi_pipeline`: This DAG replicates a pipeline using a medallion architecture where the is data is pulled from bronze layer and to silver layer while making sure it passes certain assertions needed to make sure that is cosumable and consitent further.
 - Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
-- include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
+- include: This folder is gitignored as it contained sensitive file as service account key
 - packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
 - requirements.txt: Install Python packages needed for your project by adding them to this file. It is empty by default.
 - plugins: Add custom or community plugins for your project to this file. It is empty by default.
@@ -32,14 +32,26 @@ This command will spin up five Docker containers on your machine, each for a dif
 
 When all five containers are ready the command will open the browser to the Airflow UI at http://localhost:8080/. You should also be able to access your Postgres Database at 'localhost:5432/postgres' with username 'postgres' and password 'postgres'.
 
-Note: If you already have either of the above ports allocated, you can either [stop your existing Docker containers or change the port](https://www.astronomer.io/docs/astro/cli/troubleshoot-locally#ports-are-not-available-for-my-local-airflow-webserver).
+Data Info
+=========
 
-Deploy Your Project to Astronomer
-=================================
+Layers
+---------
 
-If you have an Astronomer account, pushing code to a Deployment on Astronomer is simple. For deploying instructions, refer to Astronomer documentation: https://www.astronomer.io/docs/astro/deploy-code/
+- bronze
+- silver
+- gold
 
-Contact
-=======
+Row Count
+---------
+- bronze: 3,066,766
+- silver: 2,919,670
+- gold: 20,667(avg_fares_by_zone)
 
-The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+Freshness
+---------
+The data was lasy updated on 17th June 2026.
+
+Architecture Diagram
+--------------------
+

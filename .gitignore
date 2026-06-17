@@ -1,6 +1,4 @@
-<<<<<<< HEAD
 node_modules/
-=======
 .git
 .env
 .DS_Store
@@ -14,4 +12,3 @@ webserver_config.py
 airflow.cfg
 airflow.db
 include/*.json
->>>>>>> refs/heads/main
