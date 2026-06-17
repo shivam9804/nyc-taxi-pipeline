@@ -3,6 +3,7 @@ config {
     database: "data-engineering-496314",
     schema: "silver",
     name: "yellow_taxi_trips",
+    tags: ["silver"],
     assertions: {
         nonNull: ["PULocationID", "DOLocationID", "trip_distance", "fare_amount", "tpep_pickup_datetime", "trip_category"],
         rowConditions: [
