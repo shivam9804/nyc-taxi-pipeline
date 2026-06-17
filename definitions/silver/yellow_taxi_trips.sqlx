@@ -1,0 +1,75 @@
+config {
+    type: "table",
+    database: "data-engineering-496314",
+    schema: "silver",
+    name: "yellow_taxi_trips",
+    tags: ["silver"],
+    assertions: {
+        nonNull: ["PULocationID", "DOLocationID", "trip_distance", "fare_amount", "tpep_pickup_datetime", "trip_category"],
+        rowConditions: [
+            "fare_per_mile BETWEEN 0 AND 50",
+            "trip_duration_mins BETWEEN 1 AND 300"
+        ]
+    }
+}
+
+SELECT
+  bronze.VendorID,
+  bronze.tpep_pickup_datetime,
+  bronze.tpep_dropoff_datetime,
+  bronze.passenger_count,
+  bronze.trip_distance,
+  bronze.RatecodeID,
+  bronze.store_and_fwd_flag,
+  bronze.PULocationID,
+  bronze.DOLocationID,
+  bronze.payment_type,
+  bronze.fare_amount,
+  bronze.tip_amount,
+  bronze.tolls_amount,
+  bronze.total_amount,
+  bronze.congestion_surcharge,
+  bronze.airport_fee,
+  EXTRACT(HOUR
+  FROM
+    tpep_pickup_datetime)AS pickup_hour,
+  EXTRACT(DAYOFWEEK
+  FROM
+    tpep_pickup_datetime)AS pickup_day_of_week,
+  EXTRACT(MONTH
+  FROM
+    tpep_pickup_datetime)AS pickup_month,
+  TIMESTAMP_DIFF(tpep_dropoff_datetime, tpep_pickup_datetime, MINUTE) AS trip_duration_mins,
+  pickup_zone.Zone AS pickup_zone,
+  dropoff_zone.Zone AS dropoff_zone,
+  pickup_zone.Borough AS pickup_borough,
+  dropoff_zone.Borough AS dropoff_borough,
+  CASE
+    WHEN bronze.trip_distance < 2 THEN 'short'
+    WHEN bronze.trip_distance BETWEEN 2
+  AND 10 THEN 'medium'
+    ELSE 'long'
+END
+  AS trip_category,
+  (bronze.fare_amount / bronze.trip_distance) AS fare_per_mile,
+  (bronze.tip_amount / bronze.fare_amount) * 100 AS tip_pct
+FROM
+  -- referencing bronze source
+  ${ref("bronze", "yellow_taxi_trips")} AS bronze
+LEFT JOIN
+  -- referencing bronze source
+  ${ref("bronze", "taxi_zone_lookup")} AS pickup_zone
+ON
+  bronze.PULocationID = pickup_zone.LocationID
+LEFT JOIN
+  -- referencing bronze source
+  ${ref("bronze", "taxi_zone_lookup")} AS dropoff_zone
+ON
+  bronze.DOLocationID = dropoff_zone.LocationID
+WHERE
+  bronze.trip_distance > 0
+  AND bronze.fare_amount > 0
+  AND bronze.passenger_count IS NOT NULL
+  AND bronze.tpep_pickup_datetime <> bronze.tpep_dropoff_datetime
+  AND TIMESTAMP_DIFF(bronze.tpep_dropoff_datetime, bronze.tpep_pickup_datetime, MINUTE) BETWEEN 1 AND 300
+  AND (bronze.fare_amount / bronze.trip_distance) BETWEEN 0 AND 50

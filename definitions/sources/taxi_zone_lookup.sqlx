@@ -1,0 +1,6 @@
+config {
+    type: "declaration",
+    database: "data-engineering-496314",
+    schema: "bronze",
+    name: "taxi_zone_lookup",
+}
