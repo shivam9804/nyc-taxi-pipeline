@@ -21,7 +21,7 @@ resource "google_cloud_run_v2_service" "cloud_run_service" {
         name = "ENV"
         value_source {
           secret_key_ref {
-            secret = var.secret_environment_name
+            secret  = var.secret_environment_name
             version = "latest"
           }
         }
@@ -35,5 +35,5 @@ resource "google_cloud_run_v2_service" "cloud_run_service" {
   }
 
   labels = var.labels
-  
+
 }

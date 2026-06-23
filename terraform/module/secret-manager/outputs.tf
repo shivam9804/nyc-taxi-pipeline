@@ -1,3 +1,3 @@
-output "environment_name"{
-    value = google_secret_manager_secret.secret.name
+output "environment_name" {
+  value = google_secret_manager_secret.secret.name
 }
