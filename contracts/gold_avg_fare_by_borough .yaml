@@ -1,0 +1,41 @@
+dataset: gold
+table: avg_fare_by_borough
+owner: data-engineering-team
+tier: gold
+sla:
+  freshness_hours: 24
+  row_count: 60
+
+columns:
+  pickup_borough:
+    type: STRING
+    nullable: false
+    pii: false
+  dropoff_borough:
+    type: STRING
+    nullable: false
+    pii: false
+  trips_count:
+    type: INTEGER
+    nullable: false
+    pii: false
+  avg_fare:
+    type: FLOAT
+    nullable: false
+    pii: false
+  avg_fare_per_mile:
+    type: FLOAT
+    nullable: false
+    pii: false
+
+quality_rules:
+  - column: trips_count
+    rule: min_value
+    value: 0
+  - column: avg_fare
+    rule: min_value
+    value: 0
+  - column: avg_fare_per_mile
+    rule: min_value
+    value: 0
+  

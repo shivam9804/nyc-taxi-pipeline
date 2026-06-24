@@ -1,0 +1,143 @@
+dataset: silver
+table: yellow_taxi_trips
+owner: data-engineering-team
+tier: silver
+sla:
+  freshness_hours: 168
+  row_count: 2919670
+
+columns:
+  VendorID:
+    type: INTEGER
+    nullable: false
+    pii: false
+  tpep_pickup_datetime:
+    type: TIMESTAMP
+    nullable: false
+    pii: false
+  tpep_dropoff_datetime:
+    type: TIMESTAMP
+    nullable: false
+    pii: false
+  passenger_count:
+    type: INTEGER
+    nullable: false
+    pii: false
+  trip_distance:
+    type: FLOAT
+    nullable: false
+    pii: false
+  RatecodeID:
+    type: INTEGER
+    nullable: false
+    pii: false
+  store_and_fwd_flag:
+    type: STRING
+    nullable: false
+    pii: false
+  PULocationID:
+    type: INTEGER
+    nullable: false
+    pii: true
+  DOLocationID:
+    type: INTEGER
+    nullable: false
+    pii: true
+  payment_type:
+    type: INTEGER
+    nullable: false
+    pii: false
+  fare_amount:
+    type: FLOAT
+    nullable: false
+    pii: false
+  tip_amount:
+    type: FLOAT
+    nullable: false
+    pii: false
+  tolls_amount:
+    type: FLOAT
+    nullable: false
+    pii: false
+  total_amount:
+    type: FLOAT
+    nullable: false
+    pii: false
+  congestion_surcharge:
+    type: FLOAT
+    nullable: true
+    pii: false
+  airport_fee:
+    type: FLOAT
+    nullable: true
+    pii: false
+  pickup_hour:
+    type: INTEGER
+    nullable: false
+    pii: false
+  pickup_day_of_week:
+    type: INTEGER
+    nullable: false
+    pii: false
+  pickup_month:
+    type: INTEGER
+    nullable: false
+    pii: false
+  trip_duration_mins:
+    type: INTEGER
+    nullable: false
+    pii: false
+  pickup_zone:
+    type: STRING
+    nullable: true
+    pii: true
+  dropoff_zone:
+    type: STRING
+    nullable: true
+    pii: true
+  pickup_borough:
+    type: STRING
+    nullable: false
+    pii: false
+  dropoff_borough:
+    type: STRING
+    nullable: false
+    pii: false
+  trip_category:
+    type: STRING
+    nullable: false
+    pii: false
+  fare_per_mile:
+    type: FLOAT
+    nullable: false
+    pii: false
+  tip_pct:
+    type: FLOAT
+    nullable: false
+    pii: false
+
+quality_rules:
+  - column: PULocationID
+    rule: not_null
+  - column: DOLocationID
+    rule: not_null
+  - column: trip_distance
+    rule: not_null
+  - column: fare_amount
+    rule: not_null
+  - column: tpep_pickup_datetime
+    rule: not_null
+  - column: trip_category
+    rule: not_null
+  - column: fare_per_mile
+    rule: min_value
+    value: 0
+  - column: fare_per_mile
+    rule: max_value
+    value: 50
+  - column: trip_duration_mins
+    rule: min_value
+    value: 1
+  - column: trip_duration_mins
+    rule: max_value
+    value: 300
