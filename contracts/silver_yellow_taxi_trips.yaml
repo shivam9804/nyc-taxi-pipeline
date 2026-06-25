@@ -2,6 +2,7 @@ dataset: silver
 table: yellow_taxi_trips
 owner: data-engineering-team
 tier: silver
+tags: silver
 sla:
   freshness_hours: 168
   row_count: 2919670

@@ -2,6 +2,7 @@ dataset: gold
 table: avg_fare_by_borough
 owner: data-engineering-team
 tier: gold
+tags: gold
 sla:
   freshness_hours: 24
   row_count: 60

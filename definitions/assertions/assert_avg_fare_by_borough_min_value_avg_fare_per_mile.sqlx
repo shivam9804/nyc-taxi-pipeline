@@ -1,0 +1,7 @@
+config {
+    type: "assertion",
+    tags: ["gold"]
+}
+
+SELECT * FROM ${ref("gold","avg_fare_by_borough")}
+WHERE avg_fare_per_mile < 0

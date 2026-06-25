@@ -1,0 +1,7 @@
+config {
+    type: "assertion",
+    tags: ["silver"]
+}
+
+SELECT * FROM ${ref("silver","yellow_taxi_trips")}
+WHERE fare_per_mile > 50
