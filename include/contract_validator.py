@@ -1,5 +1,9 @@
-import argparse
+
 import yaml
+import argparse
+from google.cloud import bigquery
+from datetime import datetime, timezone
+
 
 REQUIRED_FIELDS = [
     "dataset",
@@ -25,12 +29,26 @@ VALID_TYPES = [
 ]
 
 
-def validate_contract(contract_path: str) -> bool:
+def log_validation(table: str, status: str, error_message: str = None) -> None:
+    client = bigquery.Client()
+    table_id = "data-engineering-496314.silver.contract_validation_log"
+    client.insert_rows_json(table_id, [{
+        "validated_at": datetime.now(timezone.utc).isoformat(),
+        "contract_table": table,
+        "status": status,
+        "error_message": error_message
+    }])
 
-    with open(contract_path) as f:
-        yaml_data = yaml.safe_load(f)
+
+def validate_contract(contract_path: str) -> bool:
+    table = None
+
+    try:
+        with open(contract_path) as f:
+            yaml_data = yaml.safe_load(f)
 
         keys = yaml_data.keys()
+        table = yaml_data["table"]
 
         # check all required keys are present
         for key in REQUIRED_FIELDS:
@@ -46,7 +64,12 @@ def validate_contract(contract_path: str) -> bool:
             if yaml_data["columns"][column]["type"] not in VALID_TYPES:
                 raise ValueError(f"Invalid column type: {yaml_data['columns'][column]['type']}")
 
+        log_validation(table, "SUCCESS")
         print(f"Contract {yaml_data['table']} validation passed")
+
+    except Exception as e:
+        log_validation(table or contract_path, "FAILED", str(e))
+        raise
 
     return True
 
