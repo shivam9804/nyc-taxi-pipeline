@@ -1,0 +1,9 @@
+config {
+    type: "operations",
+    schema: "staging",
+    name: "taxi_zones_updates",
+    hasOutput: true
+}
+
+CREATE OR REPLACE TABLE ${self()} AS
+SELECT * FROM ${ref("bronze", "taxi_zone_lookup")};

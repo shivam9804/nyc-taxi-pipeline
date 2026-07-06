@@ -1,0 +1,16 @@
+config {
+  type: "assertion",
+  tags: ["dimension"]
+}
+
+WITH ordered AS (
+  SELECT
+    zone_id,
+    effective_from,
+    effective_to,
+    LEAD(effective_from) OVER (PARTITION BY zone_id ORDER BY effective_from) AS next_effective_from
+  FROM ${ref("dimension", "dim_taxi_zones")}
+)
+SELECT *
+FROM ordered
+WHERE effective_to <> next_effective_from

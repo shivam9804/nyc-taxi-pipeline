@@ -1,0 +1,63 @@
+config {
+    type: "operations",
+    schema: "dimension",
+    name: "dim_taxi_zones",
+    hasOutput: true,
+    tags: ["dimension", "taxi_zone"]
+}
+
+-- create table if first run
+CREATE TABLE IF NOT EXISTS ${self()} (
+  zone_id INT64,
+  zone_name STRING,
+  borough STRING,
+  effective_from DATE,
+  effective_to DATE,
+  is_current BOOL
+);
+
+--  initial load
+INSERT INTO ${self()} (zone_id, zone_name, borough, effective_from, effective_to, is_current)
+SELECT 
+  LocationID AS zone_id,
+  Zone AS zone_name,
+  Borough AS borough,
+  CURRENT_DATE() AS effective_from,
+  NULL AS effective_to,
+  true AS is_current
+FROM ${ref("bronze","taxi_zone_lookup")}
+WHERE NOT EXISTS (SELECT 1 FROM ${self()});
+
+-- SCD type 2
+MERGE INTO ${self()} AS target
+USING (
+  -- Row 1: the real update record (matches → expires old row)
+  SELECT
+    source.LocationID AS join_key,
+    source.LocationID AS zone_id,
+    source.Zone       AS zone_name,
+    source.Borough    AS borough
+  FROM ${ref("staging", "taxi_zones_updates")} AS source
+
+  UNION ALL
+
+  -- Row 2: duplicate for changed rows only, join_key = NULL (won't match → inserts new row)
+  SELECT
+    NULL              AS join_key,
+    source.LocationID AS zone_id,
+    source.Zone       AS zone_name,
+    source.Borough    AS borough
+  FROM ${ref("staging", "taxi_zones_updates")} AS source
+  JOIN ${self()} AS dim
+    ON source.LocationID = dim.zone_id
+    AND dim.is_current = true
+  WHERE source.Zone != dim.zone_name   -- only changed rows get duplicated
+) AS source
+ON target.zone_id = source.join_key AND target.is_current = true
+
+WHEN MATCHED AND target.zone_name != source.zone_name THEN
+  UPDATE SET effective_to = CURRENT_DATE(), is_current = false
+
+WHEN NOT MATCHED THEN
+  INSERT (zone_id, zone_name, borough, effective_from, effective_to, is_current)
+  VALUES (source.zone_id, source.zone_name, source.borough, CURRENT_DATE(), NULL, true)

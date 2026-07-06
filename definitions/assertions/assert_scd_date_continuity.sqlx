@@ -1,0 +1,18 @@
+config {
+  type: "assertion",
+  tags: ["dimension"]
+}
+
+-- Validates the test simulation: each zone is changed at most once,
+-- so a changed zone (has an expired row) must have exactly 2 versions.
+-- Note: this assertion is scoped to the single-change test scenario.
+-- For unbounded changes, integrity is covered by the one-current-row
+-- and date-continuity assertions instead.
+
+SELECT
+  zone_id,
+  COUNT(*) AS total_versions,
+  COUNTIF(is_current = FALSE) AS expired_versions
+FROM ${ref("dimension", "dim_taxi_zones")}
+GROUP BY zone_id
+HAVING COUNTIF(is_current = FALSE) >= 1 AND COUNT(*) <> 2
