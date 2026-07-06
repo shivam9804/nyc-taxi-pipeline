@@ -1,0 +1,15 @@
+config {
+    type: "assertion",
+    tags: ["bronze", "dimension"]
+}
+
+SELECT
+  zone_id,
+FROM
+  ${ref("dimension", "dim_taxi_zones")}
+WHERE
+  is_current = TRUE
+GROUP BY
+  zone_id
+HAVING
+  COUNT(*) > 1
